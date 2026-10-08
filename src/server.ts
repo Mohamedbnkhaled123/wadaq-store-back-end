@@ -1,21 +1,25 @@
-import dns from 'dns';
-try { dns.setServers(['8.8.8.8', '1.1.1.1']); } catch (e) {}
-
 import { app } from './app';
 import { env } from './config/env';
 import { connectDB } from './config/db';
 
-// Ensure DB connection is established for requests
+if (!process.env['VERCEL']) {
+  try {
+    const dns = require('dns');
+    dns.setServers(['8.8.8.8', '1.1.1.1']);
+  } catch (e) {}
+}
+
+// Connect middleware to ensure DB is initialized
 app.use(async (req, res, next) => {
   try {
     await connectDB();
-    next();
   } catch (err) {
-    next(err);
+    console.error('[DB Middleware Error]:', err);
   }
+  next();
 });
 
-// Initial DB connection
+// Run initial connect
 connectDB().catch(console.error);
 
 if (!process.env['VERCEL']) {
@@ -30,4 +34,7 @@ if (!process.env['VERCEL']) {
   });
 }
 
+// Support CommonJS handler for @vercel/node and ES Module
+module.exports = app;
+module.exports.default = app;
 export default app;
