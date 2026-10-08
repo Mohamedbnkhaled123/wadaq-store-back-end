@@ -1,0 +1,52 @@
+{
+  "name": "wadaq-store-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Wadaq Sensory Integration Store",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "tsx watch --env-file=.env src/server.ts",
+    "build": "tsc",
+    "start": "node --env-file=.env dist/server.js",
+    "seed:admin": "tsx --env-file=.env src/scripts/seed-admin.ts",
+    "seed:initial": "tsx --env-file=.env src/scripts/seed-initial.ts",
+    "seed": "tsx --env-file=.env src/scripts/seed-admin.ts && tsx --env-file=.env src/scripts/seed-initial.ts"
+  },
+  "keywords": [
+    "wadaq",
+    "sensory-integration",
+    "ecommerce",
+    "mean-stack"
+  ],
+  "author": "Wadaq Team",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.5.1",
+    "compression": "^1.8.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.6.1",
+    "groq-sdk": "^1.6.0",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^9.3.0",
+    "multer": "^2.0.2",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/compression": "^1.7.5",
+    "@types/cookie-parser": "^1.4.8",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/morgan": "^1.9.9",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^24.17.0",
+    "morgan": "^1.10.1",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}
