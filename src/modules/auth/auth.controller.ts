@@ -222,3 +222,41 @@ export async function getMe(req: Request, res: Response): Promise<void> {
     },
   });
 }
+
+/**
+ * Emergency reset admin credentials using JWT secret key
+ */
+export async function emergencyResetPassword(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const { email, newPassword, secretKey } = req.body;
+    if (!secretKey || secretKey !== env.JWT_SECRET) {
+      return next(ApiError.forbidden('رمز الأمان غير صحيح'));
+    }
+    if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 8) {
+      return next(ApiError.badRequest('كلمة المرور يجب أن لا تقل عن 8 أحرف وأرقام'));
+    }
+
+    let admin = await Admin.findOne(email ? { email: email.toLowerCase().trim() } : {});
+    if (!admin) {
+      return next(ApiError.notFound('حساب المسؤول غير موجود'));
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    admin.passwordHash = await bcrypt.hash(newPassword, salt);
+    if (email && email.toLowerCase().trim() !== admin.email) {
+      admin.email = email.toLowerCase().trim();
+    }
+    await admin.save();
+
+    res.json({
+      success: true,
+      message: 'تم تحديث بيانات المسؤول وكلمة المرور بنجاح',
+      data: {
+        email: admin.email,
+        name: admin.name,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
