@@ -10,11 +10,12 @@ import { env } from '../../config/env';
  */
 export async function getSetupStatus(_req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const count = await Admin.countDocuments();
+    const admin = await Admin.findOne({}, 'email name createdAt').lean();
     res.json({
       success: true,
       data: {
-        isInitialized: count > 0,
+        isInitialized: !!admin,
+        adminEmail: admin ? admin.email : null,
       },
     });
   } catch (error) {
