@@ -10,12 +10,12 @@ import { env } from '../../config/env';
  */
 export async function getSetupStatus(_req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const admin = await Admin.findOne({}, 'email name createdAt').lean();
+    const admins = await Admin.find({}, 'email name createdAt').lean();
     res.json({
       success: true,
       data: {
-        isInitialized: !!admin,
-        adminEmail: admin ? admin.email : null,
+        isInitialized: admins.length > 0,
+        admins: admins.map((a: any) => ({ email: a.email, name: a.name })),
       },
     });
   } catch (error) {
