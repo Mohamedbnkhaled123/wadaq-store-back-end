@@ -1,4 +1,4 @@
-﻿import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { ApiError } from '../utils/api-error';
 import { env } from '../config/env';
 
@@ -8,11 +8,13 @@ export function errorHandler(
   res: Response,
   _next: NextFunction
 ): void {
-  const statusCode = err instanceof ApiError ? err.statusCode : 500;
-  const message = err.message || 'حدث خطأ داخلي في الخادم';
+  const isApiError = err instanceof ApiError;
+  const statusCode = isApiError ? err.statusCode : 500;
 
-  if (statusCode === 500) {
+  let message = err.message;
+  if (!isApiError && statusCode === 500) {
     console.error('[Internal Server Error]:', err);
+    message = 'تعذر الاتصال بالخادم حالياً، يرجى المحاولة بعد قليل';
   }
 
   res.status(statusCode).json({
