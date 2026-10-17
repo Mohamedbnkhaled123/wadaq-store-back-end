@@ -71,6 +71,16 @@ app.get('/api/health', (_req: Request, res: Response) => {
   });
 });
 
+// Edge Cache Middleware for public GET endpoints on Vercel CDN
+app.use('/api', (req: Request, res: Response, next: NextFunction) => {
+  if (req.method === 'GET' && !req.headers.authorization) {
+    res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+  } else {
+    res.setHeader('Cache-Control', 'no-store');
+  }
+  next();
+});
+
 // Mount modules
 app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
