@@ -22,8 +22,7 @@ export const connectDB = async (): Promise<typeof mongoose> => {
       maxPoolSize: 10,
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
-      bufferCommands: false,
-    }).then((m) => m).catch((err) => { cached.promise = null; throw err; });
+          }).then((m) => m).catch((err) => { cached.promise = null; throw err; });
   }
   cached.conn = await cached.promise;
   return cached.conn;

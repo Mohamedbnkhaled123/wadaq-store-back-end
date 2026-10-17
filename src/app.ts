@@ -8,6 +8,7 @@ import morgan from 'morgan';
 import { env } from './config/env';
 import { ApiError } from './utils/api-error';
 import { errorHandler } from './middlewares/error-handler';
+import { connectDB } from './config/db';
 
 // Routes
 import authRoutes from './modules/auth/auth.routes';
@@ -79,6 +80,17 @@ app.use('/api', (req: Request, res: Response, next: NextFunction) => {
     res.setHeader('Cache-Control', 'no-store');
   }
   next();
+});
+
+// Ensure MongoDB connection is initialized before handling any API route
+app.use('/api', async (_req: Request, _res: Response, next: NextFunction) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error('[DB Middleware Error]:', err);
+    next(err);
+  }
 });
 
 // Mount modules

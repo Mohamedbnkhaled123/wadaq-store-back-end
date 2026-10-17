@@ -9,17 +9,6 @@ import { app } from './app';
 import { env } from './config/env';
 import { connectDB } from './config/db';
 
-// Connect middleware to ensure DB is initialized
-app.use(async (req, res, next) => {
-  try {
-    await connectDB();
-    next();
-  } catch (err) {
-    console.error('[DB Middleware Error]:', err);
-    next(err);
-  }
-});
-
 // Run initial connect
 connectDB().catch(console.error);
 
