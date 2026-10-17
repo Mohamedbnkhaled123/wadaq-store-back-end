@@ -4,22 +4,33 @@ import { memoryCache } from '../../utils/cache';
 
 const CACHE_KEY = 'settings:public';
 
-export async function getSettings(_req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function getSettings(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const cached = memoryCache.get(CACHE_KEY);
+    const isAdmin = Boolean(req.headers.authorization);
+    const cacheKey = isAdmin ? 'settings:admin' : 'settings:public';
+    const cached = memoryCache.get(cacheKey);
     if (cached) {
-      res.setHeader('Cache-Control', 'public, max-age=60');
+      if (!isAdmin) {
+        res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+      }
       res.json({ success: true, data: cached });
       return;
     }
 
-    let settings = await Settings.findOne();
-    if (!settings) {
-      settings = await Settings.create({});
+    let query = Settings.findOne().lean();
+    if (!isAdmin) {
+      query = query.select('-aiConsultant');
     }
 
-    memoryCache.set(CACHE_KEY, settings, 120);
-    res.setHeader('Cache-Control', 'public, max-age=60');
+    let settings = await query;
+    if (!settings) {
+      settings = (await Settings.create({})).toObject();
+    }
+
+    memoryCache.set(cacheKey, settings, 120);
+    if (!isAdmin) {
+      res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+    }
     res.json({ success: true, data: settings });
   } catch (error) {
     next(error);
